@@ -1,0 +1,203 @@
+#include <iostream>
+#include <ctime>
+#include <string>
+
+using namespace std;
+
+
+unsigned int user = 0;//счёт игрока
+unsigned int computer = 0;// счёт компьютера
+
+
+
+void clearScreen()   //jочистка экрана
+{
+    cout << "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
+}
+
+int rollDice() // псевдо-рандомное число :)
+{
+    srand(time(0));
+    return rand() % 6 + 1;
+}
+
+void drawBoard(char board[3][3])  //отображение игровой доски
+{
+    cout << "    1   2   3" << endl;
+    cout << " -------------" << endl;
+    for (int i = 0; i < 3; i++)
+    {
+        cout << i + 1 << " | ";
+        for (int j = 0; j < 3; j++)
+        {
+            cout << board[i][j] << " | ";
+        }
+        cout << endl;
+        cout << " -------------" << endl;
+    }
+}
+
+bool isBoardFull(char board[3][3]) // проверка пустых клеток
+{
+    for (int i = 0; i < 3; i++)
+    {
+        for (int j = 0; j < 3; j++)
+        {
+            if (board[i][j] == ' ')
+                return false;
+        }
+    }
+    return true;
+}
+
+bool checkWin(char board[3][3], char symbol)
+{
+    //проверка по  горизонтали и вертикали
+    for (int i = 0; i < 3; i++)
+    {
+        if (board[i][0] == symbol && board[i][1] == symbol && board[i][2] == symbol)
+            return true;
+        if (board[0][i] == symbol && board[1][i] == symbol && board[2][i] == symbol)
+            return true;
+    }
+    // проверка по диагоналям
+    if (board[0][0] == symbol && board[1][1] == symbol && board[2][2] == symbol)
+        return true;
+    if (board[0][2] == symbol && board[1][1] == symbol && board[2][0] == symbol)
+        return true;
+    return false;
+}
+
+void makeRandomMove(char board[3][3])
+{
+    //делаем случайные координаты
+    int row, col;
+    do
+    {
+        row = rand() % 3;
+        col = rand() % 3;
+    }
+    while (board[row][col] != ' ');
+
+    board[row][col] = 'X';
+}
+
+
+string userName()
+{
+    cout << "Добро пожаловать в игру! \nКак мне можно к вам обращаться?\nВведите имя: ";
+    string userName = "";
+    cin >> userName;
+    cout << "Рад познакомиться с вами, " << userName << "!";
+    return userName;
+}
+
+
+void score(const string& name)
+{
+    cout << "Счёт\n" << name << ": " << user << " очков\t";
+    cout << "Компьютер" << ": " << computer << " очков" << endl;
+}
+
+
+void runTicTacToe(string name)
+{
+    char board[3][3] = { {' ', ' ', ' '}, {' ', ' ', ' '}, {' ', ' ', ' '} };
+    bool playerTurn = true;
+    bool continueGame = true;
+    while (continueGame)
+    {
+        clearScreen();
+        score(name);
+        drawBoard(board);
+
+        if (playerTurn)
+        {
+            cout << "Ваш ход, " << name << "!" << endl;
+            int row = 0;
+            int col = 0;
+            cout << "Введите номер клетки по вертикали: ";
+            cin >> row;
+            cout << "Введите номер клетки по горизонтали: ";
+            cin >> col;
+
+            if (row < 1 || row > 3 || col < 1 || col > 3)
+            {
+                cout << "Неправильные координаты! Попробуйте снова." << endl;
+                continue;
+            }
+
+            if (board[row - 1][col - 1] != ' ')
+            {
+                cout << "Эта клетка уже занята! Попробуйте снова." << endl;
+                continue;
+            }
+
+            board[row - 1][col - 1] = 'O';
+
+            if (checkWin(board, 'O'))
+            {
+                clearScreen();
+                drawBoard(board);
+                cout << "Вы победили! Поздравляю!" << endl;
+                ++user;
+                break;
+            }
+
+            if (isBoardFull(board))
+            {
+                clearScreen();
+                drawBoard(board);
+                cout << "Ничья!" << endl;
+                break;
+            }
+
+            playerTurn = false;
+        }
+        else
+        {
+            cout << "Ход компьютера..." << endl;
+            makeRandomMove(board);
+
+            if (checkWin(board, 'X'))
+            {
+                clearScreen();
+                drawBoard(board);
+                cout << "Компьютер победил! Вы проиграли." << endl;
+                ++computer;
+                break;
+            }
+
+            if (isBoardFull(board))
+            {
+                clearScreen();
+                drawBoard(board);
+                cout << "Ничья!" << endl;
+                break;
+            }
+
+            playerTurn = true;
+        }
+    }
+}
+
+
+int main()
+{
+    setlocale(LC_ALL, "RUSSIAN");
+
+    const string name = userName();
+    bool playAgain = true;
+    while (playAgain)
+    {
+        runTicTacToe(name);
+        cout << "Хотите сыграть ещё раз?\n0 - нет\t1 - да: ";
+        cin >> playAgain;
+    }
+    cout << "Надеюсь вы приятно провели время, удачи! :)";
+
+    return 0;
+}
+
+
+
